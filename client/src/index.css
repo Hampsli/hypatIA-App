@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: 262 83% 58%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 220 14.3% 95.9%;
+  --secondary-foreground: 220.9 39.3% 11%;
+  --accent: 220 14.3% 95.9%;
+  --accent-foreground: 220.9 39.3% 11%;
+  --background: 0 0% 100%;
+  --foreground: 224 71.4% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 71.4% 4.1%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 71.4% 4.1%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --muted: 220 14.3% 95.9%;
+  --muted-foreground: 220 8.9% 46.1%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --ring: 262 83% 58%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --primary: 263 70% 50%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 215 27.9% 16.9%;
+  --secondary-foreground: 210 40% 98%;
+  --accent: 215 27.9% 16.9%;
+  --accent-foreground: 210 40% 98%;
+  --background: 224 71.4% 4.1%;
+  --foreground: 210 40% 98%;
+  --card: 224 71.4% 4.1%;
+  --card-foreground: 210 40% 98%;
+  --popover: 224 71.4% 4.1%;
+  --popover-foreground: 210 40% 98%;
+  --border: 215 27.9% 16.9%;
+  --input: 215 27.9% 16.9%;
+  --muted: 215 27.9% 16.9%;
+  --muted-foreground: 217.9 10.6% 64.9%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --ring: 263 70% 50%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.hypatia-gradient {
+  background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+}
+
+.hypatia-text-gradient {
+  background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
