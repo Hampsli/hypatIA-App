@@ -1,5 +1,6 @@
 modules = ["nodejs-20"]
 
+
 [nix]
 channel = "stable-24_05"
 
@@ -10,3 +11,5 @@ externalPort = 3000
 [[ports]]
 localPort = 3001
 externalPort = 80
+
+run = "node run.js"
