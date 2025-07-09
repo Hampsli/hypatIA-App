@@ -32,7 +32,7 @@ exec('pkill -f "tsx|vite" 2>/dev/null || true', () => {
   // Wait for backend to start, then start frontend
   setTimeout(() => {
     console.log('🌐 Starting frontend server...');
-    const frontend = startProcess('npx', ['vite', '--host', '0.0.0.0', '--port', '3000'], 
+    const frontend = startProcess('npx', ['vite', '--host', '0.0.0.0', '--port', '3000', '--config', 'vite.config.ts'], 
                                    './client', 'Frontend');
     
     setTimeout(() => {

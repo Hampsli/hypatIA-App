@@ -19,7 +19,7 @@ sleep 3
 # Start frontend server
 echo "🌐 Starting frontend server on port 3000..."
 cd client
-vite --host 0.0.0.0 --port 3000 &
+vite --host 0.0.0.0 --port 3000 --config vite.config.ts &
 FRONTEND_PID=$!
 echo "Frontend PID: $FRONTEND_PID"
 
