@@ -62,14 +62,15 @@ function parseBody(req: http.IncomingMessage): Promise<any> {
 function setCorsHeaders(res: http.ServerResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
 // Send JSON response with logging
 function sendJSON(res: http.ServerResponse, data: any, statusCode = 200) {
   const timestamp = new Date().toLocaleTimeString();
   console.log(`📤 [${timestamp}] Response ${statusCode}:`, JSON.stringify(data).substring(0, 200) + (JSON.stringify(data).length > 200 ? '...' : ''));
-  setCorsHeaders(res);
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
 }
@@ -102,10 +103,12 @@ const server = http.createServer(async (req, res) => {
     console.log(`🔑 [${timestamp}] Auth header present: ${req.headers.authorization.substring(0, 20)}...`);
   }
 
+  // Set CORS headers for all requests
+  setCorsHeaders(res);
+
   // Handle CORS preflight
   if (method === 'OPTIONS') {
-    console.log(`✅ [${timestamp}] CORS preflight handled`);
-    setCorsHeaders(res);
+    console.log(`✅ [${timestamp}] CORS preflight handled for ${pathname}`);
     res.writeHead(200);
     res.end();
     return;
