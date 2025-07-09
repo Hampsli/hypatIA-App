@@ -18,7 +18,16 @@ const originalFetch = window.fetch;
 window.fetch = async (input, init) => {
   const timestamp = new Date().toLocaleTimeString();
   const method = init?.method || 'GET';
-  const url = typeof input === 'string' ? input : input.url;
+  let url = typeof input === 'string' ? input : input.url;
+  
+  // Convert relative API URLs to absolute URLs pointing to backend
+  if (url.startsWith('/api/') || url.startsWith('api/')) {
+    const backendPort = '3001';
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    url = `${protocol}//${hostname}:${backendPort}${url.startsWith('/') ? url : '/' + url}`;
+    console.log(`🔄 [${timestamp}] Redirecting API call to backend: ${url}`);
+  }
   
   console.log(`🟡 [${timestamp}] Frontend ${method} ${url}`);
   
@@ -39,7 +48,7 @@ window.fetch = async (input, init) => {
   }
 
   try {
-    const response = await originalFetch(input, {
+    const response = await originalFetch(url, {
       ...init,
       headers,
     });
