@@ -65,8 +65,10 @@ function setCorsHeaders(res: http.ServerResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-// Send JSON response
+// Send JSON response with logging
 function sendJSON(res: http.ServerResponse, data: any, statusCode = 200) {
+  const timestamp = new Date().toLocaleTimeString();
+  console.log(`📤 [${timestamp}] Response ${statusCode}:`, JSON.stringify(data).substring(0, 200) + (JSON.stringify(data).length > 200 ? '...' : ''));
   setCorsHeaders(res);
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
@@ -90,9 +92,19 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url || '', true);
   const pathname = parsedUrl.pathname || '';
   const method = req.method || 'GET';
+  const timestamp = new Date().toLocaleTimeString();
+
+  // Log all incoming requests
+  console.log(`🔵 [${timestamp}] ${method} ${pathname}`);
+  
+  // Log request headers for auth
+  if (req.headers.authorization) {
+    console.log(`🔑 [${timestamp}] Auth header present: ${req.headers.authorization.substring(0, 20)}...`);
+  }
 
   // Handle CORS preflight
   if (method === 'OPTIONS') {
+    console.log(`✅ [${timestamp}] CORS preflight handled`);
     setCorsHeaders(res);
     res.writeHead(200);
     res.end();
@@ -109,6 +121,7 @@ const server = http.createServer(async (req, res) => {
     // Register
     if (pathname === '/api/auth/register' && method === 'POST') {
       const body = await parseBody(req);
+      console.log(`📝 [${timestamp}] Register request:`, JSON.stringify({ name: body.name, email: body.email, age: body.age, currentRole: body.currentRole }));
       const { name, email, password, age, currentRole } = body;
       
       const existingUser = users.find(u => u.email === email);
@@ -152,6 +165,7 @@ const server = http.createServer(async (req, res) => {
     // Login
     if (pathname === '/api/auth/login' && method === 'POST') {
       const body = await parseBody(req);
+      console.log(`📝 [${timestamp}] Login request:`, JSON.stringify({ email: body.email }));
       const { email, password } = body;
       
       const user = users.find(u => u.email === email);

@@ -13,9 +13,15 @@ const queryClient = new QueryClient({
   },
 });
 
-// Set up global fetch for API requests
+// Set up global fetch for API requests with logging
 const originalFetch = window.fetch;
 window.fetch = async (input, init) => {
+  const timestamp = new Date().toLocaleTimeString();
+  const method = init?.method || 'GET';
+  const url = typeof input === 'string' ? input : input.url;
+  
+  console.log(`🟡 [${timestamp}] Frontend ${method} ${url}`);
+  
   const token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
@@ -24,12 +30,35 @@ window.fetch = async (input, init) => {
   
   if (token && !headers.Authorization) {
     headers.Authorization = `Bearer ${token}`;
+    console.log(`🔑 [${timestamp}] Using auth token: ${token.substring(0, 20)}...`);
   }
 
-  return originalFetch(input, {
-    ...init,
-    headers,
-  });
+  // Log request body if present
+  if (init?.body) {
+    console.log(`📝 [${timestamp}] Request body:`, JSON.stringify(JSON.parse(init.body as string)).substring(0, 200));
+  }
+
+  try {
+    const response = await originalFetch(input, {
+      ...init,
+      headers,
+    });
+    
+    console.log(`🟢 [${timestamp}] Response ${response.status} ${response.statusText}`);
+    
+    // Log response for debugging
+    const responseClone = response.clone();
+    responseClone.text().then(text => {
+      if (text) {
+        console.log(`📋 [${timestamp}] Response data:`, text.substring(0, 200) + (text.length > 200 ? '...' : ''));
+      }
+    }).catch(() => {});
+    
+    return response;
+  } catch (error) {
+    console.error(`🔴 [${timestamp}] Fetch error:`, error);
+    throw error;
+  }
 };
 
 createRoot(document.getElementById('root')!).render(
