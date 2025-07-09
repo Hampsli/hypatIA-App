@@ -12,9 +12,31 @@ export default function AssessmentPage() {
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const queryClient = useQueryClient();
 
-  const { data: questions, isLoading } = useQuery<AssessmentQuestion[]>({
+  // Debug: Check if user is authenticated
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log('🔍 Assessment page - Token:', token ? 'Present' : 'Missing');
+    if (!token) {
+      console.log('❌ No token found, redirecting to login');
+      setLocation('/login');
+      return;
+    }
+  }, [setLocation]);
+
+  const { data: questions, isLoading, error } = useQuery<AssessmentQuestion[]>({
     queryKey: ['/api/assessment/questions'],
+    retry: 1,
   });
+
+  // Debug: Log query status
+  useEffect(() => {
+    console.log('📊 Assessment questions query status:', { 
+      isLoading, 
+      hasQuestions: !!questions, 
+      questionsCount: questions?.length,
+      error: error?.message 
+    });
+  }, [isLoading, questions, error]);
 
   const submitResponsesMutation = useMutation({
     mutationFn: async (responses: Array<{ questionId: number; selectedOption: string }>) => {
@@ -37,6 +59,7 @@ export default function AssessmentPage() {
   });
 
   const handleAnswerSelect = (questionId: number, answer: string) => {
+    console.log('📝 Answer selected', { questionId, answer });
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -44,8 +67,12 @@ export default function AssessmentPage() {
   };
 
   const nextQuestion = () => {
+    console.log('🔄 Next question clicked', { currentQuestion, totalQuestions: questions?.length });
     if (questions && currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
+      console.log('✅ Moved to question', currentQuestion + 1);
+    } else {
+      console.log('⚠️ Cannot move to next question');
     }
   };
 
@@ -78,15 +105,41 @@ export default function AssessmentPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="text-center p-6">
+            <p className="text-red-600 mb-4">Error al cargar las preguntas:</p>
+            <p className="text-sm text-gray-600 mb-4">{error.message}</p>
+            <div className="space-y-2">
+              <Button onClick={() => window.location.reload()} className="w-full">
+                Reintentar
+              </Button>
+              <Button variant="outline" onClick={() => setLocation('/dashboard')} className="w-full">
+                Ir al Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!questions || questions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="text-center p-6">
             <p>No hay preguntas disponibles en este momento.</p>
-            <Button onClick={() => setLocation('/dashboard')} className="mt-4">
-              Ir al Dashboard
-            </Button>
+            <div className="space-y-2 mt-4">
+              <Button onClick={() => window.location.reload()} className="w-full">
+                Reintentar
+              </Button>
+              <Button variant="outline" onClick={() => setLocation('/dashboard')} className="w-full">
+                Ir al Dashboard
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -209,8 +262,18 @@ export default function AssessmentPage() {
                   </Button>
                 ) : (
                   <Button
-                    onClick={nextQuestion}
+                    onClick={() => {
+                      console.log('🟡 Button clicked - Next Question');
+                      console.log('📊 Current state:', {
+                        currentQuestion,
+                        hasAnswer: !!answers[currentQuestionData.id],
+                        answer: answers[currentQuestionData.id],
+                        questionsLength: questions?.length
+                      });
+                      nextQuestion();
+                    }}
                     disabled={!answers[currentQuestionData.id]}
+                    className={!answers[currentQuestionData.id] ? 'opacity-50 cursor-not-allowed' : ''}
                   >
                     Siguiente
                     <ChevronRight className="h-4 w-4 ml-2" />
@@ -223,6 +286,11 @@ export default function AssessmentPage() {
                 <p>
                   Selecciona una opción para continuar. Puedes volver atrás para modificar tus respuestas.
                 </p>
+                {!answers[currentQuestionData.id] && (
+                  <p className="text-amber-600 mt-2 font-medium">
+                    ⚠️ Debes seleccionar una respuesta para continuar
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
