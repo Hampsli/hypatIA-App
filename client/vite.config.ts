@@ -28,9 +28,10 @@ export default defineConfig({
       /^.*\.replit\.app$/
     ],
     hmr: {
-      port: 3000,
+      port: 24678,
       host: '0.0.0.0'
-    }
+    },
+    strictPort: false
   },
   preview: {
     host: '0.0.0.0',
