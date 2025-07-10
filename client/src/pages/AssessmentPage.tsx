@@ -5,23 +5,29 @@ import { Button } from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import { AssessmentQuestion } from '@shared/schema';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function AssessmentPage() {
   const [, setLocation] = useLocation();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const queryClient = useQueryClient();
+  const { user, token, isLoading: authLoading } = useAuth();
 
   // Debug: Check if user is authenticated
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    console.log('🔍 Assessment page - Token:', token ? 'Present' : 'Missing');
-    if (!token) {
-      console.log('❌ No token found, redirecting to login');
+    console.log('🔍 Assessment page - Auth status:', { 
+      hasUser: !!user, 
+      hasToken: !!token, 
+      authLoading 
+    });
+    
+    if (!authLoading && (!user || !token)) {
+      console.log('❌ No authentication found, redirecting to login');
       setLocation('/login');
       return;
     }
-  }, [setLocation]);
+  }, [user, token, authLoading, setLocation]);
 
   const { data: questions, isLoading, error } = useQuery<AssessmentQuestion[]>({
     queryKey: ['/api/assessment/questions'],
@@ -40,22 +46,33 @@ export default function AssessmentPage() {
 
   const submitResponsesMutation = useMutation({
     mutationFn: async (responses: Array<{ questionId: number; selectedOption: string }>) => {
+      console.log('📤 Submitting assessment responses:', responses);
       const response = await fetch('/api/assessment/responses', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ responses }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to submit responses');
+        const errorData = await response.json();
+        console.error('❌ Submit responses error:', errorData);
+        throw new Error(errorData.error || 'Failed to submit responses');
       }
       
-      return response.json();
+      const result = await response.json();
+      console.log('✅ Responses submitted successfully:', result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/assessment/responses'] });
       setLocation('/dashboard');
     },
+    onError: (error) => {
+      console.error('❌ Submission failed:', error);
+    }
   });
 
   const handleAnswerSelect = (questionId: number, answer: string) => {
@@ -97,7 +114,7 @@ export default function AssessmentPage() {
     }
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
