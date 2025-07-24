@@ -7,9 +7,10 @@ require('child_process').exec('pkill -f "tsx|vite" 2>/dev/null || true', () => {
   
   // Start backend
   console.log('📡 Starting backend with enhanced CORS...');
-  const backend = spawn('npx', ['tsx', 'server/http-server.ts'], {
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
+  const backend = spawn('npx tsx server/http-server.ts', [], { // <-- Changed command and args
+    stdio: ['ignore', 'pipe', 'pipe'],
+    shell: true // <-- Add this line
+  });
   
   backend.stdout.on('data', (data) => {
     console.log(`[Backend] ${data.toString().trim()}`);
@@ -22,10 +23,11 @@ require('child_process').exec('pkill -f "tsx|vite" 2>/dev/null || true', () => {
   // Start frontend with proxy
   setTimeout(() => {
     console.log('🌐 Starting frontend with Vite proxy...');
-    const frontend = spawn('npx', ['vite', '--host', '0.0.0.0', '--port', '3000'], {
-      cwd: './client',
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
+   const frontend = spawn('npx vite --host 0.0.0.0 --port 3000', [], { // <-- Changed command and args
+  cwd: './client',
+  stdio: ['ignore', 'pipe', 'pipe'],
+  shell: true // <-- Add this line
+});
     
     frontend.stdout.on('data', (data) => {
       const output = data.toString().trim();
