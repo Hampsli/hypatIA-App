@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node cors-fix-start.js",
-    "dev": "tsx server/http-server.ts"
+    "frontend": "cd client && vite"
   },
   "keywords": [],
   "author": "",
