@@ -42,25 +42,27 @@ export default function RegisterPage() {
     setMessage('');
 
     try {
-      const { confirmPassword, ...userData } = data;
-      //Note: Pending conect with backend
-      const response = await fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      });
-
-      const result = await response.json();
-
-     if (response.ok) {
-       setMessage('Registro exitoso. Código de verificación enviado a tu email.');
        localStorage.setItem('pendingEmail', data.email);
-      setTimeout(() => {
-      setLocation('/verify-otp');
-     }, 2000);
-      } else {
-       setMessage(result.error || 'Error al registrarse');
-     }
+      setLocation('/profile-form');
+      // const { confirmPassword, ...userData } = data;
+      // //Note: Pending conect with backend
+      // const response = await fetch('', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(userData),
+      // });
+
+      // const result = await response.json();
+
+    //  if (response.ok) {
+    //    setMessage('Registro exitoso. Código de verificación enviado a tu email.');
+    //    localStorage.setItem('pendingEmail', data.email);
+    //   setTimeout(() => {
+    //   setLocation('/verify-otp');
+    //  }, 2000);
+    //   } else {
+    //    setMessage(result.error || 'Error al registrarse');
+    //  }
     } catch (error) {
       setMessage('Error de conexión');
     } finally {

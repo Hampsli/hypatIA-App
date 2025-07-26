@@ -17,29 +17,29 @@ const profileSchema = z.object({
   gender: z.string().min(1, 'Género es requerido'),
   cvFile: z.instanceof(FileList).optional(),
   
-  // Caregiver Information
-  isCaregiver: z.boolean(),
-  caregivingHoursPerWeek: z.string().optional(),
-  
   // Educational Information
   initialEducation: z.string().min(1, 'Formación inicial es requerida'),
   higherEducationArea: z.string().optional(),
   technologyLanguage: z.string().optional(),
   
   // Professional Information
+  currentPosition: z.string().min(1, 'Posición actual requerida'),
+  workHoursPerWeek:z.string().optional(),
   yearsOfExperience: z.string().min(1, 'Años de experiencia requeridos'),
   startedInTech: z.string().min(1, 'Fecha de inicio en tech requerida'),
-  currentPosition: z.string().min(1, 'Posición actual requerida'),
   workMode: z.string().min(1, 'Modalidad de trabajo requerida'),
   salaryRange: z.string().min(1, 'Rango salarial requerido'),
   reasonsForMovement: z.array(z.string()).min(1, 'Selecciona al menos una razón'),
   expectedSalary: z.string().min(1, 'Expectativa salarial requerida'),
   hasCompletedCourses: z.boolean(),
   projectsBuilt: z.number().min(0, 'Número inválido'),
+
+    // Caregiver Information
+  isCaregiver: z.boolean(),
+  caregivingHoursPerWeek: z.string().optional(),
   
   // Expectations
   lastFeedback: z.string().min(10, 'Proporciona más detalles sobre la retroalimentación'),
-  desiredPosition: z.string().min(1, 'Posición deseada requerida'),
   targetJobs: z.array(z.string()).min(1, 'Agrega al menos una vacante'),
   dailyTasks: z.string().min(10, 'Describe tus tareas diarias'),
   softSkills: z.string().min(10, 'Describe tus soft skills'),
@@ -53,6 +53,8 @@ export default function ProfileFormPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   const [targetJobInputs, setTargetJobInputs] = useState(['', '', '']);
+  const [hasJob, setHasJob] = useState(false);
+
 
   const {
     register,
@@ -67,6 +69,7 @@ export default function ProfileFormPage() {
       hasCompletedCourses: false,
       projectsBuilt: 0,
       reasonsForMovement: [],
+      currentPosition: "No tiene empleo",
       targetJobs: ['', '', ''],
     },
   });
@@ -77,10 +80,11 @@ export default function ProfileFormPage() {
 
   const sections = [
     'Información Personal',
-    'Información de Cuidado',
-    'Información Académica',
-    'Información Profesional',
-    'Expectativas y Desarrollo'
+    'Información Escolar',
+    'Información complementaria laboral',
+    'Caregiver Information',
+    'Expectativas y Desarrollo',
+    "Analisis de Retroalimentación"
   ];
 
   const onSubmit = async (data: ProfileData) => {
@@ -128,6 +132,10 @@ export default function ProfileFormPage() {
     newTargetJobs[index] = value;
     setTargetJobInputs(newTargetJobs);
     setValue('targetJobs', newTargetJobs);
+  };
+
+    const handleHasJob = (response:boolean) => {
+    setHasJob(!response);
   };
 
   const nextSection = () => {
@@ -230,56 +238,8 @@ export default function ProfileFormPage() {
                 </div>
               )}
 
-              {/* Section 1: Caregiver Information */}
+              {/* Section 1: Educational Information */}
               {currentSection === 1 && (
-                <div className="space-y-6">
-                  <div className="flex items-center mb-4">
-                    <Heart className="h-5 w-5 text-primary mr-2" />
-                    <h3 className="text-lg font-semibold">Información Relacionada con los eventos que afectan directamente a mujeres</h3>
-                  </div>
-                  
-                  <div>
-                    <Label>¿Eres cuidadora de alguien? *</Label>
-                    <div className="flex space-x-4 mt-2">
-                      <label className="flex items-center">
-                        <input
-                          {...register('isCaregiver')}
-                          type="radio"
-                          value="true"
-                          className="mr-2"
-                        />
-                        Sí
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          {...register('isCaregiver')}
-                          type="radio"
-                          value="false"
-                          className="mr-2"
-                        />
-                        No
-                      </label>
-                    </div>
-                  </div>
-
-                  {isCaregiver && (
-                    <div>
-                      <Label htmlFor="caregivingHoursPerWeek">¿Cuánto tiempo dedicas a ello a la semana?</Label>
-                      <Select {...register('caregivingHoursPerWeek')}>
-                        <option value="">Seleccionar...</option>
-                        <option value="1-5">1-5 horas</option>
-                        <option value="6-10">6-10 horas</option>
-                        <option value="11-20">11-20 horas</option>
-                        <option value="21-30">21-30 horas</option>
-                        <option value="mas-30">Más de 30 horas</option>
-                      </Select>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Section 2: Educational Information */}
-              {currentSection === 2 && (
                 <div className="space-y-6">
                   <div className="flex items-center mb-4">
                     <GraduationCap className="h-5 w-5 text-primary mr-2" />
@@ -287,11 +247,13 @@ export default function ProfileFormPage() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="initialEducation">Formación inicial *</Label>
+                    <Label htmlFor="initialEducation">Ultimo grado de estudios completo: *</Label>
                     <Select {...register('initialEducation')}>
                       <option value="">Seleccionar...</option>
                       <option value="medio-superior">Medio Superior</option>
+                      <option value="Profesional-tecnico-terminal">Profesional técnico terminal</option>
                       <option value="superior">Superior</option>
+                      <option value="Profesional-tecnico-terminal">Técnico superior universitario y profesional asociado</option>
                       <option value="especializacion">Especialización</option>
                       <option value="maestria">Maestría</option>
                       <option value="doctorado">Doctorado</option>
@@ -307,35 +269,75 @@ export default function ProfileFormPage() {
                     initialEducation === 'doctorado') && (
                     <div>
                       <Label htmlFor="higherEducationArea">¿En qué área es tu formación Superior?</Label>
-                      <Input
-                        {...register('higherEducationArea')}
-                        placeholder="Ej: Ingeniería en Sistemas, Ciencias de la Computación..."
-                      />
+                     <Select {...register('higherEducationArea')}>
+                      <option value="">Seleccionar...</option>
+                      <option value="Educación">Educación</option>
+                      <option value="Artes-y-humanidades">Artes y humanidades</option>
+                      <option value="Ciencias-Sociales-Administración-y-Derecho">Ciencias Sociales, Administración y Derecho</option>
+                      <option value="Ciencias-Naturales-o-Exactas">Ciencias Naturales o Exactas</option>
+                      <option value="Ciencias-de-la-Computación">Ciencias de la Computación</option>
+                      <option value="Ingeniería-Manufactura-y-Construcción">Ingeniería, Manufactura y Construcción</option>
+                      <option value="Agronomía-y-veterinaria">Agronomía y veterinaria</option>
+                      <option value="Salud">Salud</option>
+                      <option value="Servicios">Servicios</option>
+                    </Select>
                     </div>
                   )}
 
-                  {initialEducation === 'medio-superior' && (
-                    <div>
-                      <Label htmlFor="technologyLanguage">¿Qué "Tecnología-Lenguaje" desarrollas?</Label>
-                      <Input
-                        {...register('technologyLanguage')}
-                        placeholder="Ej: JAVA, Ciberseguridad, PYTHON..."
-                      />
-                    </div>
-                  )}
+                {(initialEducation === 'medio-superior' || 
+                  initialEducation === 'Profesional-tecnico-terminal'
+                ) && (
+                  <div>
+                    <Label htmlFor="technologyLanguage">¿Qué "Tecnología-Lenguaje" desarrollas?</Label>
+                     <Select  {...register('technologyLanguage')}>
+                      <option value="">Seleccionar...</option>
+                      <option value="Java">Java</option>
+                      <option value="Python">Python</option>
+                      <option value="JavaScript">JavaScript</option>
+                      <option value="C++">C++</option>
+                      <option value="Swift">Swift</option>
+                      <option value="TypeScript">TypeScript</option>
+                      <option value="PHP">PHP</option>
+                      <option value="C#">C#</option>
+                    </Select>
+                  </div>
+                )}
                 </div>
               )}
-
-              {/* Section 3: Professional Information */}
-              {currentSection === 3 && (
+            {/* Section 2: Professional Information */}
+              {currentSection === 2 && (
                 <div className="space-y-6">
                   <div className="flex items-center mb-4">
                     <Briefcase className="h-5 w-5 text-primary mr-2" />
-                    <h3 className="text-lg font-semibold">Información Profesional participante</h3>
+                    <h3 className="text-lg font-semibold">Información complementaria laboral</h3>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
+                      <div>
+                      <Label htmlFor="hasJob">¿Actualmente te encuentras trabajando?</Label>
+                      <Select onChange={(e) => handleHasJob(Boolean(e.target.value) )}>
+                        <option value="">Seleccionar...</option>
+                        <option value="true">Si</option>
+                        <option value="false">No</option>
+                      </Select>
+                      
+                      {/* {errors.yearsOfExperience && (
+                        <p className="text-sm text-red-500 mt-1">{errors.yearsOfExperience.message}</p>
+                      )} */}
+                    </div>
+                    {hasJob &&  <div>
+                      <Label htmlFor="workHoursPerWeek">¿Cuántas horas destinas trabajas a la semana?</Label>
+                      <Select {...register('workHoursPerWeek')}>
+                        <option value="">Seleccionar...</option>
+                        <option value="Tiempo-completo">Tiempo completo: 40 a más horas</option>
+                        <option value="Medio-tiempo">Medio tiempo: 20 horas o menos</option>
+                        <option value="Por-proyecto">Por proyecto</option>
+                      </Select>
+                      {/* {errors.yearsOfExperience && (
+                        <p className="text-sm text-red-500 mt-1">{errors.yearsOfExperience.message}</p>
+                      )} */}
+                    </div>  }
+                    {/* <div>
                       <Label htmlFor="yearsOfExperience">Años de experiencia en el área TECH *</Label>
                       <Select {...register('yearsOfExperience')}>
                         <option value="">Seleccionar...</option>
@@ -348,32 +350,7 @@ export default function ProfileFormPage() {
                       {errors.yearsOfExperience && (
                         <p className="text-sm text-red-500 mt-1">{errors.yearsOfExperience.message}</p>
                       )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="startedInTech">¿Cuándo comenzaste a trabajar en el área tech? *</Label>
-                      <Input
-                        {...register('startedInTech')}
-                        type="date"
-                      />
-                      {errors.startedInTech && (
-                        <p className="text-sm text-red-500 mt-1">{errors.startedInTech.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="currentPosition">Posición actual *</Label>
-                    <Input
-                      {...register('currentPosition')}
-                      placeholder="Ej: Desarrolladora Frontend Senior"
-                    />
-                    {errors.currentPosition && (
-                      <p className="text-sm text-red-500 mt-1">{errors.currentPosition.message}</p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
+                    </div> */}
                     <div>
                       <Label htmlFor="workMode">Modalidad de trabajo *</Label>
                       <Select {...register('workMode')}>
@@ -386,7 +363,36 @@ export default function ProfileFormPage() {
                         <p className="text-sm text-red-500 mt-1">{errors.workMode.message}</p>
                       )}
                     </div>
+                  </div>
+                   {/* <div>
+                      <Label htmlFor="startedInTech">¿Cuándo comenzaste a trabajar en el área tech? *</Label>
+                      <Input
+                        {...register('startedInTech')}
+                        type="date"
+                      />
+                      {errors.startedInTech && (
+                        <p className="text-sm text-red-500 mt-1">{errors.startedInTech.message}</p>
+                      )}
+                    </div> */}
+                 
 
+                  <div className="grid grid-cols-2 gap-4">
+                  {hasJob === false &&  <div>
+                    <Label htmlFor="currentPosition">¿Qué posición tienes actualmente? *</Label>
+                    <Select  {...register('currentPosition')}>
+                        <option value="">Seleccionar...</option>
+                        <option value="Desarrollador">Desarrollador frontend/Backend/Aplicaciones móviles/FullStack</option>
+                        <option value="IngenieraSoftware/Ciberseguridad">Ingeniera Sofware/Cibrseguridad</option>
+                        <option value="Analista">Analista de data/Administradora de bases de datos</option>
+                        <option value="Diseñadora">Diseñadora UX/UI</option>
+                        <option value="TeamLead">Lider de equipo/Team leader</option>
+                        <option value="ProjectManager">Project manager</option>
+                        <option value="Scrum-master">Scrum master</option>
+                      </Select>
+                    {errors.currentPosition && (
+                      <p className="text-sm text-red-500 mt-1">{errors.currentPosition.message}</p>
+                    )}
+                  </div>}
                     <div>
                       <Label htmlFor="salaryRange">Rango salarial actual *</Label>
                       <Select {...register('salaryRange')}>
@@ -423,13 +429,12 @@ export default function ProfileFormPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="expectedSalary">Expectativa salarial *</Label>
+                    <Label htmlFor="expectedSalary">Al cambiarte de empleo, esperarías ganar en promedio cuánto más de lo que percibes actualmente, por mes: *</Label>
                     <Select {...register('expectedSalary')}>
                       <option value="">Seleccionar...</option>
-                      <option value="30k-40k">$30,000 - $40,000 MXN</option>
-                      <option value="40k-60k">$40,000 - $60,000 MXN</option>
-                      <option value="60k-100k">$60,000 - $100,000 MXN</option>
-                      <option value="mas-100k">Más de $100,000 MXN</option>
+                      <option value="3k-5k">Entre 3 a 5 mil</option>
+                      <option value="6k-10k">Entre 6 a 10 mil</option>
+                      <option value="11k-17k">De 11 a 17 mil</option>
                     </Select>
                     {errors.expectedSalary && (
                       <p className="text-sm text-red-500 mt-1">{errors.expectedSalary.message}</p>
@@ -476,41 +481,60 @@ export default function ProfileFormPage() {
                   )}
                 </div>
               )}
+              {/* Section 3: Caregiver Information */}
+              {currentSection === 3 && (
+                <div className="space-y-6">
+                  <div className="flex items-center mb-4">
+                    <Heart className="h-5 w-5 text-primary mr-2" />
+                    <h3 className="text-lg font-semibold">Información Relacionada con los eventos que afectan directamente a mujeres</h3>
+                  </div>
+                  
+                  <div>
+                    <Label>¿Eres cuidadora de alguien? *</Label>
+                    <div className="flex space-x-4 mt-2">
+                      <label className="flex items-center">
+                        <input
+                          {...register('isCaregiver')}
+                          type="radio"
+                          value="true"
+                          className="mr-2"
+                        />
+                        Sí
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          {...register('isCaregiver')}
+                          type="radio"
+                          value="false"
+                          className="mr-2"
+                        />
+                        No
+                      </label>
+                    </div>
+                  </div>
 
+                  {isCaregiver && (
+                    <div>
+                      <Label htmlFor="caregivingHoursPerWeek">¿Cuánto tiempo dedicas a ello a la semana?</Label>
+                      <Select {...register('caregivingHoursPerWeek')}>
+                        <option value="">Seleccionar...</option>
+                        <option value="1-5">1-5 horas</option>
+                        <option value="6-10">6-10 horas</option>
+                        <option value="11-20">11-20 horas</option>
+                        <option value="21-30">21-30 horas</option>
+                        <option value="mas-30">Más de 30 horas</option>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              )}
               {/* Section 4: Expectations */}
               {currentSection === 4 && (
                 <div className="space-y-6">
                   <div className="flex items-center mb-4">
                     <Briefcase className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Expectativas y Desarrollo</h3>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="lastFeedback">
-                      Comparte la última retroalimentación que algún superior, colega o alguien de RH 
-                      te brindó respecto a habilidades NO técnicas *
-                    </Label>
-                    <Textarea
-                      {...register('lastFeedback')}
-                      placeholder="Sé lo más extensa y descriptiva posible..."
-                      rows={4}
-                    />
-                    {errors.lastFeedback && (
-                      <p className="text-sm text-red-500 mt-1">{errors.lastFeedback.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="desiredPosition">Posición a la que te quieres mover *</Label>
-                    <Input
-                      {...register('desiredPosition')}
-                      placeholder="Ej: Tech Lead, Senior Developer, Product Manager..."
-                    />
-                    {errors.desiredPosition && (
-                      <p className="text-sm text-red-500 mt-1">{errors.desiredPosition.message}</p>
-                    )}
-                  </div>
-
+                  </div>    
                   <div>
                     <Label>Coloca tres vacantes a las que te gustaría aplicar en este momento</Label>
                     {targetJobInputs.map((job, index) => (
@@ -529,7 +553,7 @@ export default function ProfileFormPage() {
 
                   <div>
                     <Label htmlFor="dailyTasks">
-                      Describe las tareas que realizas en tu día a día en el puesto que ocupas actualmente *
+                     Enlista un máximo de cinco laborales diarias de manera general (Administrativas y  de desarrollo) *
                     </Label>
                     <Textarea
                       {...register('dailyTasks')}
@@ -556,6 +580,32 @@ export default function ProfileFormPage() {
                   </div>
                 </div>
               )}
+              {/* Section 5: Feedback*/}
+              {currentSection === 5 && (
+                <div className="space-y-6">
+                  <div className="flex items-center mb-4">
+                    <Briefcase className="h-5 w-5 text-primary mr-2" />
+                    <h3 className="text-lg font-semibold">Analisis de Retroalimentación</h3>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="lastFeedback">
+                      Comparte la última retroalimentación que algún superior, colega o alguien de RH 
+                      te brindó respecto a habilidades NO técnicas *
+                    </Label>
+                    <Textarea
+                      {...register('lastFeedback')}
+                      placeholder="Sé lo más extensa y descriptiva posible..."
+                      rows={4}
+                    />
+                    {errors.lastFeedback && (
+                      <p className="text-sm text-red-500 mt-1">{errors.lastFeedback.message}</p>
+                    )}
+                  </div>
+
+                </div>
+              )}
+
 
               {/* Navigation buttons */}
               <div className="flex justify-between mt-8">

@@ -18,7 +18,7 @@ function App() {
           <Route path="/login" component={LoginPage} />
           <Route path="/register" component={RegisterPage} />
           <Route path="/verify-otp" component={OTPVerificationPage} />
-          <ProtectedRoute path="/profile-form" component={ProfileFormPage} />
+          <Route path="/profile-form" component={ProfileFormPage} />
           <ProtectedRoute path="/assessment" component={AssessmentPage} />
           <ProtectedRoute path="/dashboard" component={DashboardPage} />
           <Route>
