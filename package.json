@@ -6,7 +6,7 @@
     "start": "node cors-fix-start.js",
     "frontend": "cd client && vite",
     "dev": "vite",
-    "build": "npm run build",
+    "build": "vite build client",
     "preview": "vite preview"
   },
   "keywords": [],
