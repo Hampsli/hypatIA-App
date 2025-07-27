@@ -16,7 +16,6 @@ const registerSchema = z.object({
   password: z.string().min(8, 'Password debe tener al menos 8 caracteres'),
   confirmPassword: z.string(),
   ageRange: z.string(),
-  currentRole: z.string().min(1, 'Rol actual es requerido'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -140,7 +139,7 @@ export default function RegisterPage() {
                   )}
                 </div>
 
-                <div>
+                {/* <div>
                   <Label htmlFor="currentRole">Rol Actual</Label>
                   <div className="relative">
                     <Briefcase className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -153,7 +152,7 @@ export default function RegisterPage() {
                   {errors.currentRole && (
                     <p className="text-sm text-red-500 mt-1">{errors.currentRole.message}</p>
                   )}
-                </div>
+                </div> */}
               </div>
 
               <div>

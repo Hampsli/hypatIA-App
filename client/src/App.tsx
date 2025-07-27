@@ -8,6 +8,7 @@ import OTPVerificationPage from './pages/OTPVerificationPage';
 import ProfileFormPage from './pages/ProfileFormPage';
 import AssessmentPage from './pages/AssessmentPage';
 import DashboardPage from './pages/DashboardPage';
+import FinalScreen from './pages/FinalScreen';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/register" component={RegisterPage} />
           <Route path="/verify-otp" component={OTPVerificationPage} />
           <Route path="/profile-form" component={ProfileFormPage} />
+          <Route path="/final-screen-demo" component={FinalScreen} />
           <ProtectedRoute path="/assessment" component={AssessmentPage} />
           <ProtectedRoute path="/dashboard" component={DashboardPage} />
           <Route>
