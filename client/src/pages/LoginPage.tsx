@@ -34,7 +34,8 @@ export default function LoginPage() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}api/auth/login`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -43,10 +44,10 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage('Código de verificación enviado a tu email. Te redirigiremos...');
         localStorage.setItem('pendingEmail', data.email);
+        localStorage.setItem('authToken', result.token);
         setTimeout(() => {
-          setLocation('/verify-otp');
+          setLocation('/profile-form');
         }, 2000);
       } else {
         setMessage(result.error || 'Error al iniciar sesión');
