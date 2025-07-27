@@ -17,12 +17,12 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["client/src/*"],
+      "@/*": ["src/*"],
       "@shared/*": ["shared/*"],
-      "@assets/*": ["client/src/assets/*"]
+      "@assets/*": ["src/assets/*"]
     },
     "types": ["vite/client"],
   },
-  "include": ["client/src", "shared", "server"],
+  "include": ["src", "shared", "server"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
