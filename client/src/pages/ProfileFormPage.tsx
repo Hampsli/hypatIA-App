@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -53,8 +53,6 @@ export default function ProfileFormPage() {
   const [hasJob, setHasJob] = useState(false);
   const [hasCompletedCoursesFlag, setHasCompletedCoursesFlag] = useState(false);
 
-
-
   const {
     register,
     handleSubmit,
@@ -78,7 +76,6 @@ export default function ProfileFormPage() {
 
   const CaregiverStatus = watch('CaregiverStatus');
   const initialEducation = watch('initialEducation');
-   const formValues = watch();
 
   const sections = [
     'Información Personal',
@@ -91,30 +88,65 @@ export default function ProfileFormPage() {
 
   const onSubmit = async (data: ProfileData) => {
     setIsLoading(true);
-     console.log('Profile Data:', data);
+    const authToken = localStorage.getItem('authToken');
     try {
-      // Filter out empty target jobs
-      //hascurses needs tranformation to boolean
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}api/profile`;
+
       const filteredTargetJobs = data.targetJobs.filter(job => job.trim() !== '');
+      const hasCompletedCourses = Boolean(data.hasCompletedCourses);
       const profileData = {
         ...data,
         targetJobs: filteredTargetJobs,
         userId: user?.id,
+        hasCompletedCourses: hasCompletedCourses,
       };
-
  
-      // const response = await fetch('/api/profile', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(profileData),
-      // });
+      const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}` 
+      },
+      body: JSON.stringify(profileData), 
+    });
 
-      // if (response.ok) {
-      //   setLocation('/final-screen-demo');
-      // } else {
-      //   const result = await response.json();
-      //   alert(result.error || 'Error al guardar el perfil');
-      // }
+     if (response.ok) {
+            // --- PASO 2: Si el perfil se guardó, llamar al servicio de IA ---
+      if (data.lastFeedback && data.lastFeedback.trim() !== '') {
+        try {
+          const aiApiUrl = `${import.meta.env.VITE_API_BASE_URL}api/ai/analyze`;
+          
+          const aiRequestBody = {
+            text: data.lastFeedback,
+            analysisType: 'SKILLS_GAP', 
+          };
+
+          const aiResponse = await fetch(aiApiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(aiRequestBody),
+          });
+
+          if (aiResponse.ok) {
+            console.log('Análisis de IA exitoso');
+          } else {
+            // Si el análisis falla, lo registramos pero continuamos, ya que el perfil sí se guardó.
+            console.error('Falló el análisis de IA, pero el perfil se guardó correctamente.');
+          }
+
+        } catch (aiError) {
+          console.error('Error de conexión con el servicio de IA:', aiError);
+        }
+      }
+      
+        setLocation('/final-screen-demo');
+    } else {
+       const result = await response.json();
+       alert(result.error || 'Error al guardar el perfil');
+    }
     } catch (error) {
       alert('Error de conexión');
     } finally {

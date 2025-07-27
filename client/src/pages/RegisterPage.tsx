@@ -21,7 +21,7 @@ const registerSchema = z.object({
   path: ["confirmPassword"],
 });
 
-type RegisterData = z.infer<typeof registerSchema>;
+export type RegisterData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const [, setLocation] = useLocation();
@@ -41,27 +41,30 @@ export default function RegisterPage() {
     setMessage('');
 
     try {
-       localStorage.setItem('pendingEmail', data.email);
-      setLocation('/profile-form');
-      // const { confirmPassword, ...userData } = data;
-      // //Note: Pending conect with backend
-      // const response = await fetch('', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(userData),
-      // });
+        const apiUrl = `${import.meta.env.VITE_API_BASE_URL}api/auth/register`;
+        const  currentRole = "LegacyAtribute";
+      const { confirmPassword,  ...userData } = data;
+      const userDataLegacy = {
+        "currentRole": currentRole,
+        ...data,} 
+       const response = await fetch(apiUrl, {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify(userDataLegacy),
+      });
 
-      // const result = await response.json();
+    const result = await response.json();
 
-    //  if (response.ok) {
-    //    setMessage('Registro exitoso. Código de verificación enviado a tu email.');
-    //    localStorage.setItem('pendingEmail', data.email);
-    //   setTimeout(() => {
-    //   setLocation('/verify-otp');
-    //  }, 2000);
-    //   } else {
-    //    setMessage(result.error || 'Error al registrarse');
-    //  }
+    if (response.ok) {
+     setMessage('Registro exitoso. Código de verificación enviado a tu email.');
+      localStorage.setItem('pendingEmail', data.email);
+      localStorage.setItem('pendingName', data.name);
+     setTimeout(() => {
+   setLocation('/login');
+    }, 2000);
+     } else {
+      setMessage(result.error || 'Error al registrarse');
+    }
     } catch (error) {
       setMessage('Error de conexión');
     } finally {

@@ -20,7 +20,8 @@
       "@/*": ["client/src/*"],
       "@shared/*": ["shared/*"],
       "@assets/*": ["client/src/assets/*"]
-    }
+    },
+    "types": ["vite/client"],
   },
   "include": ["client/src", "shared", "server"],
   "references": [{ "path": "./tsconfig.node.json" }]
