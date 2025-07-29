@@ -152,7 +152,6 @@ export default function ProfileFormPage() {
           }
         }
 
-        setLocation('/final-screen-demo');
       } else {
         const result = await response.json();
         alert(result.error || 'Error al guardar el perfil');

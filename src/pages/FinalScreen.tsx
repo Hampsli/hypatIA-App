@@ -55,7 +55,7 @@ const [isLoading, setIsLoading] = useState(true); // Set to true initially as we
 
       // Get filename from Content-Disposition header if available, otherwise default
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = 'report.pdf'; // Default filename
+      let filename = 'Reporte de Punto de Partida HypatIA.pdf'; // Default filename
       if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
         const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
         if (filenameMatch && filenameMatch[1]) {
