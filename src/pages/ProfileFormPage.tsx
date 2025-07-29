@@ -97,13 +97,20 @@ export default function ProfileFormPage() {
 
       const filteredTargetJobs = data.targetJobs.filter(job => job.trim() !== '');
       const hasCompletedCourses = Boolean(data.hasCompletedCourses);
+      const  currentRole = "LegacyAtribute";
+      const desiredPosition = "LegacyAtribute";
+      const yearsOfExperience = "LegacyAtribute"; 
       const profileData = {
         ...data,
         targetJobs: filteredTargetJobs,
         userId: user?.id,
         hasCompletedCourses: hasCompletedCourses,
+        "currentRole": currentRole,
+        "desiredPosition": desiredPosition,
+        "yearsOfExperience": yearsOfExperience,
       };
- 
+    
+
       const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
