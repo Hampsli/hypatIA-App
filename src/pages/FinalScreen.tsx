@@ -30,7 +30,7 @@ const [isLoading, setIsLoading] = useState(true); // Set to true initially as we
         const response = await fetch(apiUrl, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/pdf',
             'Authorization': `Bearer ${authToken}`, 
           },
         });
@@ -50,8 +50,33 @@ const [isLoading, setIsLoading] = useState(true); // Set to true initially as we
           throw new Error(errorMessage);
         }
 
-        const data = await response.json();
-        setReports(data); 
+       // Get the response as a Blob (for binary data like PDF)
+      const blob = await response.blob();
+
+      // Get filename from Content-Disposition header if available, otherwise default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'report.pdf'; // Default filename
+      if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create a temporary URL for the Blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary <a> element to trigger the download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename; // Set the desired filename for download
+      document.body.appendChild(a); // Append to body (required for Firefox)
+      a.click(); // Programmatically click the link to trigger download
+      a.remove(); // Clean up the temporary element
+
+      // Revoke the object URL to free up memory
+      window.URL.revokeObjectURL(url);
+
       } catch (err) {
         console.error("Failed to fetch reports:", err);
         setError(`Error al cargar los reportes: ${err instanceof Error ? err.message : String(err)}`);
