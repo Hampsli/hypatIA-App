@@ -4,7 +4,7 @@ console.log('🔧 Starting hypatIA frontend...');
 
 // Start frontend with Vite
 const frontend = spawn('npx vite --host 0.0.0.0 --port 3000', [], {
-  cwd: './client',
+  cwd: '',
   stdio: ['ignore', 'pipe', 'pipe'],
   shell: true
 });
