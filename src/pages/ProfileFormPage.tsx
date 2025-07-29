@@ -53,6 +53,9 @@ export default function ProfileFormPage() {
   const [hasJob, setHasJob] = useState(false);
   const [hasCompletedCoursesFlag, setHasCompletedCoursesFlag] = useState(false);
 
+  const UserName = localStorage.getItem('pendingName');
+
+
   const {
     register,
     handleSubmit,
@@ -90,7 +93,7 @@ export default function ProfileFormPage() {
     setIsLoading(true);
     const authToken = localStorage.getItem('authToken');
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}api/profile`;
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}api/profile/update`;
 
       const filteredTargetJobs = data.targetJobs.filter(job => job.trim() !== '');
       const hasCompletedCourses = Boolean(data.hasCompletedCourses);
@@ -231,7 +234,7 @@ export default function ProfileFormPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Nombre (automático)</Label>
-                      <Input value={user?.name || ''} disabled className="bg-gray-50" />
+                      <Input value={UserName || ''} disabled className="bg-gray-50" />
                     </div>
                     
                     <div>
