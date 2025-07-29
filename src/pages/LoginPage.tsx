@@ -139,12 +139,6 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-xs text-blue-700">
-                <strong>Nota de seguridad:</strong> Por tu seguridad, te enviaremos un código 
-                de verificación por email para confirmar tu identidad.
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

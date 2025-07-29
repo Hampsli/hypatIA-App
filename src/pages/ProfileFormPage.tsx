@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,15 +16,15 @@ const profileSchema = z.object({
   // Personal Information
   gender: z.string().min(1, 'Género es requerido'),
   cvFile: z.instanceof(FileList).optional(),
-  
+
   // Educational Information
   initialEducation: z.string().min(1, 'Formación inicial es requerida'),
   higherEducationArea: z.string().optional(),
   technologyLanguage: z.string().optional(),
-  
+
   // Professional Information
   currentPosition: z.string().optional(),
-  workHoursPerWeek:z.string().optional(),
+  workHoursPerWeek: z.string().optional(),
   workMode: z.string().optional(),
   salaryRange: z.string().optional(),
   reasonsForMovement: z.array(z.string()).min(1, 'Selecciona al menos una razón'),
@@ -32,10 +32,10 @@ const profileSchema = z.object({
   hasCompletedCourses: z.string(),
   projectsBuilt: z.number().min(0, 'Número inválido'),
 
-    // Caregiver Information
+  // Caregiver Information
   CaregiverStatus: z.string(),
   caregivingHoursPerWeek: z.string().optional(),
-  
+
   // Expectations
   lastFeedback: z.string().min(10, 'Proporciona más detalles sobre la retroalimentación'),
   targetJobs: z.array(z.string()).min(1, 'Agrega al menos una vacante'),
@@ -97,9 +97,9 @@ export default function ProfileFormPage() {
 
       const filteredTargetJobs = data.targetJobs.filter(job => job.trim() !== '');
       const hasCompletedCourses = Boolean(data.hasCompletedCourses);
-      const  currentRole = "LegacyAtribute";
+      const currentRole = "LegacyAtribute";
       const desiredPosition = "LegacyAtribute";
-      const yearsOfExperience = "LegacyAtribute"; 
+      const yearsOfExperience = "LegacyAtribute";
       const profileData = {
         ...data,
         targetJobs: filteredTargetJobs,
@@ -109,54 +109,54 @@ export default function ProfileFormPage() {
         "desiredPosition": desiredPosition,
         "yearsOfExperience": yearsOfExperience,
       };
-    
+
 
       const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}` 
-      },
-      body: JSON.stringify(profileData), 
-    });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(profileData),
+      });
 
-     if (response.ok) {
-            // --- PASO 2: Si el perfil se guardó, llamar al servicio de IA ---
-      if (data.lastFeedback && data.lastFeedback.trim() !== '') {
-        try {
-          const aiApiUrl = `${import.meta.env.VITE_API_BASE_URL}api/ai/analyze`;
-          
-          const aiRequestBody = {
-            text: data.lastFeedback,
-            analysisType: 'SKILLS_GAP', 
-          };
+      if (response.ok) {
+        // --- PASO 2: Si el perfil se guardó, llamar al servicio de IA ---
+        if (data.lastFeedback && data.lastFeedback.trim() !== '') {
+          try {
+            const aiApiUrl = `${import.meta.env.VITE_API_BASE_URL}api/ai/analyze`;
 
-          const aiResponse = await fetch(aiApiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify(aiRequestBody),
-          });
+            const aiRequestBody = {
+              text: data.lastFeedback,
+              analysisType: 'SKILLS_GAP',
+            };
 
-          if (aiResponse.ok) {
-            console.log('Análisis de IA exitoso');
-          } else {
-            // Si el análisis falla, lo registramos pero continuamos, ya que el perfil sí se guardó.
-            console.error('Falló el análisis de IA, pero el perfil se guardó correctamente.');
+            const aiResponse = await fetch(aiApiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+              },
+              body: JSON.stringify(aiRequestBody),
+            });
+
+            if (aiResponse.ok) {
+              console.log('Análisis de IA exitoso');
+            } else {
+              // Si el análisis falla, lo registramos pero continuamos, ya que el perfil sí se guardó.
+              console.error('Falló el análisis de IA, pero el perfil se guardó correctamente.');
+            }
+
+          } catch (aiError) {
+            console.error('Error de conexión con el servicio de IA:', aiError);
           }
-
-        } catch (aiError) {
-          console.error('Error de conexión con el servicio de IA:', aiError);
         }
-      }
-      
+
         setLocation('/final-screen-demo');
-    } else {
-       const result = await response.json();
-       alert(result.error || 'Error al guardar el perfil');
-    }
+      } else {
+        const result = await response.json();
+        alert(result.error || 'Error al guardar el perfil');
+      }
     } catch (error) {
       alert('Error de conexión');
     } finally {
@@ -207,20 +207,19 @@ export default function ProfileFormPage() {
                 ¡Bienvenida {user?.name}! Completa tu perfil para obtener una evaluación personalizada
               </p>
             </div>
-            
+
             {/* Progress bar */}
             <div className="mb-6">
               <div className="flex justify-between text-sm mb-2">
                 {sections.map((section, index) => (
-                  <span key={index} className={`${
-                    index === currentSection ? 'text-primary font-medium' : 'text-gray-500'
-                  }`}>
+                  <span key={index} className={`${index === currentSection ? 'text-primary font-medium' : 'text-gray-500'
+                    }`}>
                     {index + 1}. {section}
                   </span>
                 ))}
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
+                <div
                   className="hypatia-gradient h-2 rounded-full transition-all duration-300"
                   style={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
                 ></div>
@@ -237,13 +236,21 @@ export default function ProfileFormPage() {
                     <User className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Información de Identificación Personal</h3>
                   </div>
-                  
+                  <div className="grid grid-cols gap-4">
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-xs text-blue-700">
+                        El presente formulario, es la primera parte de nuestra metodología; toda la información que nos compartas, será usada para crear un perfil individualizado que nos ayude a recopilar la información que nos permitirá acompañarte  de forma estratégica y personalizada enfocado en <strong>power skills</strong>   esenciales para la industria tech.
+                      </p>
+                    </div>
+
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Nombre (automático)</Label>
                       <Input value={UserName || ''} disabled className="bg-gray-50" />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="gender">Género *</Label>
                       <Select {...register('gender')}>
@@ -258,6 +265,7 @@ export default function ProfileFormPage() {
                       )}
                     </div>
                   </div>
+
 
                   {/* <div>
                     <Label htmlFor="cvFile">Sube tu CV actualizado</Label>
@@ -290,7 +298,7 @@ export default function ProfileFormPage() {
                     <GraduationCap className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Información Escolar participante</h3>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="initialEducation">Ultimo grado de estudios completo: *</Label>
                     <Select {...register('initialEducation')}>
@@ -308,69 +316,69 @@ export default function ProfileFormPage() {
                     )}
                   </div>
 
-                  {(initialEducation === 'superior' || 
-                    initialEducation === 'especializacion' || 
-                    initialEducation === 'maestria' || 
+                  {(initialEducation === 'superior' ||
+                    initialEducation === 'especializacion' ||
+                    initialEducation === 'maestria' ||
                     initialEducation === 'doctorado') && (
-                    <div>
-                      <Label htmlFor="higherEducationArea">¿En qué área es tu formación Superior?</Label>
-                     <Select {...register('higherEducationArea')}>
-                      <option value="">Seleccionar...</option>
-                      <option value="Educación">Educación</option>
-                      <option value="Artes-y-humanidades">Artes y humanidades</option>
-                      <option value="Ciencias-Sociales-Administración-y-Derecho">Ciencias Sociales, Administración y Derecho</option>
-                      <option value="Ciencias-Naturales-o-Exactas">Ciencias Naturales o Exactas</option>
-                      <option value="Ciencias-de-la-Computación">Ciencias de la Computación</option>
-                      <option value="Ingeniería-Manufactura-y-Construcción">Ingeniería, Manufactura y Construcción</option>
-                      <option value="Agronomía-y-veterinaria">Agronomía y veterinaria</option>
-                      <option value="Salud">Salud</option>
-                      <option value="Servicios">Servicios</option>
-                    </Select>
-                    </div>
-                  )}
+                      <div>
+                        <Label htmlFor="higherEducationArea">¿En qué área es tu formación Superior?</Label>
+                        <Select {...register('higherEducationArea')}>
+                          <option value="">Seleccionar...</option>
+                          <option value="Educación">Educación</option>
+                          <option value="Artes-y-humanidades">Artes y humanidades</option>
+                          <option value="Ciencias-Sociales-Administración-y-Derecho">Ciencias Sociales, Administración y Derecho</option>
+                          <option value="Ciencias-Naturales-o-Exactas">Ciencias Naturales o Exactas</option>
+                          <option value="Ciencias-de-la-Computación">Ciencias de la Computación</option>
+                          <option value="Ingeniería-Manufactura-y-Construcción">Ingeniería, Manufactura y Construcción</option>
+                          <option value="Agronomía-y-veterinaria">Agronomía y veterinaria</option>
+                          <option value="Salud">Salud</option>
+                          <option value="Servicios">Servicios</option>
+                        </Select>
+                      </div>
+                    )}
 
-                {(initialEducation === 'medio-superior' || 
-                  initialEducation === 'Profesional-tecnico-terminal'
-                ) && (
-                  <div>
-                    <Label htmlFor="technologyLanguage">¿Qué "Tecnología-Lenguaje" desarrollas?</Label>
-                     <Select  {...register('technologyLanguage')}>
-                      <option value="">Seleccionar...</option>
-                      <option value="Java">Java</option>
-                      <option value="Python">Python</option>
-                      <option value="JavaScript">JavaScript</option>
-                      <option value="C++">C++</option>
-                      <option value="Swift">Swift</option>
-                      <option value="TypeScript">TypeScript</option>
-                      <option value="PHP">PHP</option>
-                      <option value="C#">C#</option>
-                    </Select>
-                  </div>
-                )}
+                  {(initialEducation === 'medio-superior' ||
+                    initialEducation === 'Profesional-tecnico-terminal'
+                  ) && (
+                      <div>
+                        <Label htmlFor="technologyLanguage">¿Qué "Tecnología-Lenguaje" desarrollas?</Label>
+                        <Select  {...register('technologyLanguage')}>
+                          <option value="">Seleccionar...</option>
+                          <option value="Java">Java</option>
+                          <option value="Python">Python</option>
+                          <option value="JavaScript">JavaScript</option>
+                          <option value="C++">C++</option>
+                          <option value="Swift">Swift</option>
+                          <option value="TypeScript">TypeScript</option>
+                          <option value="PHP">PHP</option>
+                          <option value="C#">C#</option>
+                        </Select>
+                      </div>
+                    )}
                 </div>
               )}
-            {/* Section 2: Professional Information */}
+              {/* Section 2: Professional Information */}
               {currentSection === 2 && (
                 <div className="space-y-6">
                   <div className="flex items-center mb-4">
                     <Briefcase className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Información complementaria laboral</h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
-                      <div>
+                    <div>
                       <Label htmlFor="hasJob">¿Actualmente te encuentras trabajando?</Label>
                       <Select onChange={(e) => setHasJob(e.target.value === "true")}>
                         <option value="">Seleccionar...</option>
                         <option value="true">Si</option>
                         <option value="false">No</option>
                       </Select>
-                      
+
                       {/* {errors.yearsOfExperience && (
                         <p className="text-sm text-red-500 mt-1">{errors.yearsOfExperience.message}</p>
                       )} */}
                     </div>
-                    {hasJob !== false &&  <div>
+                    {hasJob !== false && <div>
                       <Label htmlFor="workHoursPerWeek">¿Cuántas horas destinas trabajas a la semana?</Label>
                       <Select {...register('workHoursPerWeek')}>
                         <option value="">Seleccionar...</option>
@@ -381,7 +389,7 @@ export default function ProfileFormPage() {
                       {/* {errors.yearsOfExperience && (
                         <p className="text-sm text-red-500 mt-1">{errors.yearsOfExperience.message}</p>
                       )} */}
-                    </div>  }
+                    </div>}
                     {/* <div>
                       <Label htmlFor="yearsOfExperience">Años de experiencia en el área TECH *</Label>
                       <Select {...register('yearsOfExperience')}>
@@ -396,21 +404,21 @@ export default function ProfileFormPage() {
                         <p className="text-sm text-red-500 mt-1">{errors.yearsOfExperience.message}</p>
                       )}
                     </div> */}
-                      {hasJob &&  
-                    <div>
-                      <Label htmlFor="workMode">Modalidad de trabajo *</Label>
-                      <Select {...register('workMode')}>
-                        <option value="">Seleccionar...</option>
-                        <option value="presencial">Presencial</option>
-                        <option value="remoto">Remoto</option>
-                        <option value="hibrido">Híbrido</option>
-                      </Select>
-                      {errors.workMode && (
-                        <p className="text-sm text-red-500 mt-1">{errors.workMode.message}</p>
-                      )}
-                    </div>}
+                    {hasJob &&
+                      <div>
+                        <Label htmlFor="workMode">Modalidad de trabajo *</Label>
+                        <Select {...register('workMode')}>
+                          <option value="">Seleccionar...</option>
+                          <option value="presencial">Presencial</option>
+                          <option value="remoto">Remoto</option>
+                          <option value="hibrido">Híbrido</option>
+                        </Select>
+                        {errors.workMode && (
+                          <p className="text-sm text-red-500 mt-1">{errors.workMode.message}</p>
+                        )}
+                      </div>}
                   </div>
-                   {/* <div>
+                  {/* <div>
                       <Label htmlFor="startedInTech">¿Cuándo comenzaste a trabajar en el área tech? *</Label>
                       <Input
                         {...register('startedInTech')}
@@ -420,10 +428,10 @@ export default function ProfileFormPage() {
                         <p className="text-sm text-red-500 mt-1">{errors.startedInTech.message}</p>
                       )}
                     </div> */}
-                 
+
 
                   <div className="grid grid-cols-2 gap-4">
-                  {hasJob  &&  <><div>
+                    {hasJob && <><div>
                       <Label htmlFor="currentPosition">¿Qué posición tienes actualmente? *</Label>
                       <Select {...register('currentPosition')}>
                         <option value="">Seleccionar...</option>
@@ -496,7 +504,7 @@ export default function ProfileFormPage() {
                           type="radio"
                           value="true"
                           className="mr-2"
-                          onChange={(e) => setHasCompletedCoursesFlag(Boolean(e.target.value) )}
+                          onChange={(e) => setHasCompletedCoursesFlag(Boolean(e.target.value))}
                         />
                         Sí
                       </label>
@@ -506,7 +514,7 @@ export default function ProfileFormPage() {
                           type="radio"
                           value="false"
                           className="mr-2"
-                          onChange={(e) => setHasCompletedCoursesFlag(Boolean(!e.target.value) )}
+                          onChange={(e) => setHasCompletedCoursesFlag(Boolean(!e.target.value))}
                         />
                         No
                       </label>
@@ -536,32 +544,32 @@ export default function ProfileFormPage() {
                     <Heart className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Información Relacionada con los eventos que afectan directamente a mujeres</h3>
                   </div>
-                  
+
                   <div>
                     <Label>¿Actualmente, ejerces o participas en tareas de cuidado? (de forma directa o indirecta) *</Label>
-                      <Select {...register('CaregiverStatus')}>
-                        <option value="">Seleccionar...</option>
-                        <option value="Directa">Directa</option>
-                        <option value="Indirecta">Indirecta</option>
-                        <option value="No-estoy segura">No, estoy segura</option>
-                        <option value="No-participo">No participo</option>
-                      </Select>
+                    <Select {...register('CaregiverStatus')}>
+                      <option value="">Seleccionar...</option>
+                      <option value="Directa">Directa</option>
+                      <option value="Indirecta">Indirecta</option>
+                      <option value="No-estoy segura">No, estoy segura</option>
+                      <option value="No-participo">No participo</option>
+                    </Select>
                   </div>
 
                   {(CaregiverStatus === "Directa" ||
-                  CaregiverStatus === "Indirecta" ||
-                  CaregiverStatus === "No-estoy-segura")
-                   && (
-                    <div>
-                      <Label htmlFor="caregivingHoursPerWeek">¿Cuánto tiempo dedicas a ello por semana? (O podrías colocar un aproximado de tu tiempo al día en porcentaje)</Label>
-                      <Select {...register('caregivingHoursPerWeek')}>
-                        <option value="">Seleccionar...</option>
-                        <option value="40h">40 horas a la semana</option>
-                        <option value="20h">20 horas a la semana</option>
-                        <option value="10h">10 horas a la semana</option>
-                      </Select>
-                    </div>
-                  )}
+                    CaregiverStatus === "Indirecta" ||
+                    CaregiverStatus === "No-estoy-segura")
+                    && (
+                      <div>
+                        <Label htmlFor="caregivingHoursPerWeek">¿Cuánto tiempo dedicas a ello por semana? (O podrías colocar un aproximado de tu tiempo al día en porcentaje)</Label>
+                        <Select {...register('caregivingHoursPerWeek')}>
+                          <option value="">Seleccionar...</option>
+                          <option value="40h">40 horas a la semana</option>
+                          <option value="20h">20 horas a la semana</option>
+                          <option value="10h">10 horas a la semana</option>
+                        </Select>
+                      </div>
+                    )}
                 </div>
               )}
               {/* Section 4: Expectations */}
@@ -570,7 +578,7 @@ export default function ProfileFormPage() {
                   <div className="flex items-center mb-4">
                     <Briefcase className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Expectativas y Desarrollo</h3>
-                  </div>    
+                  </div>
                   <div>
                     <Label>Coloca tres vacantes a las que te gustaría aplicar en este momento</Label>
                     {targetJobInputs.map((job, index) => (
@@ -589,7 +597,7 @@ export default function ProfileFormPage() {
 
                   <div>
                     <Label htmlFor="dailyTasks">
-                     Enlista un máximo de cinco laborales diarias de manera general (Administrativas y  de desarrollo) *
+                      Enlista un máximo de cinco laborales diarias de manera general (Administrativas y  de desarrollo) *
                     </Label>
                     <Textarea
                       {...register('dailyTasks')}
@@ -609,10 +617,10 @@ export default function ProfileFormPage() {
                     <Briefcase className="h-5 w-5 text-primary mr-2" />
                     <h3 className="text-lg font-semibold">Analisis de Retroalimentación</h3>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="lastFeedback">
-                      Comparte la última retroalimentación que algún superior, colega o alguien de RH 
+                      Comparte la última retroalimentación que algún superior, colega o alguien de RH
                       te brindó respecto a habilidades NO técnicas *
                     </Label>
                     <Textarea

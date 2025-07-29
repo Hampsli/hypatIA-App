@@ -24,5 +24,5 @@
     "types": ["vite/client"],
   },
   "include": ["src", "shared", "server"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  
 }
